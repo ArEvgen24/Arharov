@@ -1,0 +1,55 @@
+class AdditiveCipher {
+    constructor(m, Y0, Y1) {
+        this.m = m; // Модуль
+        this.Y0 = Y0; // Начальное значение
+        this.Y1 = Y1; // Следующее значение
+    }
+
+    // Генерация следующего значения
+    next() {
+        const nextValue = (this.Y0 + this.Y1) % this.m;
+        this.Y0 = this.Y1;
+        this.Y1 = nextValue;
+        return nextValue;
+    }
+
+    // Шифрование текста
+    encrypt(text) {
+        let encryptedText = '';
+        for (let i = 0; i < text.length; i++) {
+            const charCode = text.charCodeAt(i);
+            const shift = this.next(); // Получаем следующее значение для сдвига
+            const encryptedCharCode = (charCode + shift) % 65536; // Ограничиваем по диапазону символов
+            encryptedText += String.fromCharCode(encryptedCharCode);
+        }
+        return encryptedText;
+    }
+
+    // Дешифрование текста
+    decrypt(encryptedText) {
+        let decryptedText = '';
+        for (let i = 0; i < encryptedText.length; i++) {
+            const charCode = encryptedText.charCodeAt(i);
+            const shift = this.next(); // Получаем следующее значение для сдвига
+            const decryptedCharCode = (charCode - shift + 65536) % 65536; // Ограничиваем по диапазону символов
+            decryptedText += String.fromCharCode(decryptedCharCode);
+        }
+        return decryptedText;
+    }
+}
+
+// Пример использования
+const m = 4096;
+const Y0 = 4003;
+const Y1 = 59;
+
+const cipher = new AdditiveCipher(m, Y0, Y1);
+const inputText = 'Привет, мир!';
+
+// Шифрование
+const encryptedText = cipher.encrypt(inputText);
+console.log('Зашифрованный текст:', encryptedText);
+
+// Дешифрование
+const decryptedText = cipher.decrypt(encryptedText);
+console.log('Расшифрованный текст:', decryptedText);
