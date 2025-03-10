@@ -1,50 +1,34 @@
-class AdditiveCipher {
-    constructor(m, Y0, Y1) {
-        this.m = m; // Модуль
-        this.Y0 = Y0; // Начальное значение
-        this.Y1 = Y1; // Следующее значение
-    }
+const m = 4096; // Максимальное значение
+let Y0 = 4003; // Начальное значение
+let Y1 = 59;   // Шаг
 
-    // Генерация следующего значения
-    next() {
-        const nextValue = (this.Y0 + this.Y1) % this.m;
-        this.Y0 = this.Y1;
-        this.Y1 = nextValue;
-        return nextValue;
+// Функция для генерации гаммы
+function generateGamma(length) {
+    const gamma = [];
+    for (let i = 0; i < length; i++) {
+        Y0 = (Y0 + Y1) % m; // Обновляем Y0
+        gamma.push(Y0); // Добавляем в гамму
     }
+    return gamma;
+}
 
-    // Шифрование текста
-    encrypt(text) {
-        let encryptedText = '';
-        for (let i = 0; i < text.length; i++) {
-            const charCode = text.charCodeAt(i);
-            const shift = this.next(); // Получаем следующее значение для сдвига
-            const encryptedCharCode = (charCode + shift) % 65536; // Ограничиваем по диапазону символов
-            encryptedText += String.fromCharCode(encryptedCharCode);
-        }
-        return encryptedText;
-    }
+// Функция для шифрования
+function encrypt(plaintext) {
+    const gamma = generateGamma(plaintext.length);
+    const ciphertext = [];
 
-    // Дешифрование текста
-    decrypt(encryptedText) {
-        let decryptedText = '';
-        for (let i = 0; i < encryptedText.length; i++) {
-            const charCode = encryptedText.charCodeAt(i);
-            const shift = this.next(); // Получаем следующее значение для сдвига
-            const decryptedCharCode = (charCode - shift + 65536) % 65536; // Ограничиваем по диапазону символов
-            decryptedText += String.fromCharCode(decryptedCharCode);
-        }
-        return decryptedText;
+    for (let i = 0; i < plaintext.length; i++) {
+        // Шифруем с помощью XOR
+        ciphertext.push(plaintext[i] ^ gamma[i]);
     }
+    return ciphertext;
 }
 
 // Пример использования
-const m = 4096;
-const Y0 = 4003;
-const Y1 = 59;
+const plaintext = [1, 2, 3, 4, 5]; // Пример открытого текста
+const ciphertext = encrypt(plaintext);
 
-const cipher = new AdditiveCipher(m, Y0, Y1);
-const inputText = 'Привет, мир!';
+console.log("Шифртекст:", ciphertext);
 
 // Шифрование
 const encryptedText = cipher.encrypt(inputText);
